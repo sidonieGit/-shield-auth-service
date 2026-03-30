@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: auth-service
+  data:
+    mongodb:
+      auto-index-creation: true # Force la création des index unique au démarrage
+      uri: mongodb://${MONGO_DB_USER}:${MONGO_DB_PASSWORD}@localhost:27017/${MONGO_DB_NAME}?authSource=admin
+rsa:
+  public-key: classpath:certs/public.pem
+  private-key: classpath:certs/private.pem
+
+# Configuration sécurisée des logs
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.shield.auth_service: INFO

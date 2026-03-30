@@ -1,0 +1,56 @@
+HELP.md
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+.settings/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+.mtl.sample.conf
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+# --- SECURITÉ (CRITIQUE) ---
+# Ne jamais envoyer les clés privées et les secrets sur GitLab
+src/main/resources/certs/*.pem
+src/main/resources/certs/*.key
+src/main/resources/certs/*.pub
+.env
+.env.local
+
+# --- JAVA / MAVEN ---
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/, !**/src/test/**/target/
+
+# --- LOGS ---
+*.log
+logs/
+temp/
+
+# --- OS SPECIFIC ---
+.DS_Store
+Thumbs.db
+
+# --- DOCKER ---
+# On garde le docker-compose.yml, mais on ignore les données de volume locales
+mongo_data/
