@@ -2,6 +2,19 @@ server:
   port: 8081
 
 spring:
+
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: ${MAILTRAP_USER} # À récupérer sur ton compte Mailtrap-Connecte-toi sur Mailtrap.io.Va dans Email Testing > Inboxes.Clique sur "Show Credentials" et copie le username et le password.
+    password: ${MAILTRAP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   application:
     name: auth-service
   data:
@@ -17,6 +30,11 @@ logging:
   level:
     org.springframework.security: DEBUG
     com.shield.auth_service: INFO
+
+# Configuration du client Google- à partir de google console
+google:
+  client:
+    id: ${GOOGLE_CLIENT_ID}
 
 eureka:
   client:

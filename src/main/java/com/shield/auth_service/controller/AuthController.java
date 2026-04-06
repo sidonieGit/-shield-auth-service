@@ -4,6 +4,8 @@ import com.shield.auth_service.dto.AuthResponse;
 import com.shield.auth_service.dto.LoginRequest;
 import com.shield.auth_service.dto.MfaVerificationRequest;
 import com.shield.auth_service.dto.RegisterRequest;
+import com.shield.auth_service.model.User;
+import com.shield.auth_service.repository.UserRepository;
 import com.shield.auth_service.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -21,6 +24,7 @@ import java.security.Principal;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRepository userRepository;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -45,4 +49,37 @@ public class AuthController {
         return ResponseEntity.ok(authService.verifyMfaLogin(request.tempToken(), request.code()));
     }
 
+    @PostMapping("/google")
+    public ResponseEntity<AuthResponse> googleLogin(@RequestBody Map<String, String> payload) {
+        String idToken = payload.get("idToken");
+        return ResponseEntity.ok(authService.loginWithGoogle(idToken));
+    }
+
+    @PostMapping("/password-update")
+    public ResponseEntity<AuthResponse> updatePassword(@RequestBody Map<String, String> payload) {
+        String token = payload.get("token");
+        String newPassword = payload.get("password");
+        return ResponseEntity.ok(authService.updatePassword(token, newPassword));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<AuthResponse> forgotPassword(@RequestParam String email) {
+        return ResponseEntity.ok(authService.forgotPassword(email));
+    }
+
+    @PostMapping("/mfa/disable")
+    public ResponseEntity<AuthResponse> disableMfa(@RequestParam String token) {
+        return ResponseEntity.ok(authService.disableMfa(token));
+    }
+
+    @GetMapping("/activate")
+    public ResponseEntity<AuthResponse> activateAccount(@RequestParam String token) {
+        return ResponseEntity.ok(authService.activateAccount(token));
+    }
+    @GetMapping("/me")
+    public ResponseEntity<User> getMyProfile(Principal principal) {
+        // principal.getName() contient l'email extrait du JWT
+        return ResponseEntity.ok(userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("Profil non trouvé")));
+    }
 }
