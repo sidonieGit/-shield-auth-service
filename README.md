@@ -2,19 +2,16 @@
 # Shield Auth Service - Identity Provider (IdP)
 Ce service est un fournisseur d'identité robuste conçu pour gérer l'authentification centralisée, la génération de jetons JWT asymétriques et la double authentification (MFA).
 
-## 🛠 Technologies
-* Runtime : Java 21 / Spring Boot 3.4.3
-    
-* Sécurité : RSA-256 Asymmetric JWT (OAuth2 Resource Server)
-    
-* MFA : TOTP via Google Authenticator
-    
-* Base de données : MongoDB 7.0
+## 🛠 Technologies & Sécurité
+- **Runtime** : Java 21 / Spring Boot 3.4.3
+- **Sign. Asymétrique** : RSA-256 (Clé privée pour signature, publique pour validation).
+- **MFA** : TOTP (Google Authenticator) + Rotation de jeton.
+- **Activation** : Flux d'activation par email via Mailtrap (Statut `active: false` par défaut).
 
-## 🔐 Flux d'Authentification
-Le service suit un processus rigoureux pour garantir la sécurité des accès :
-
-* Inscription (Register) : POST /api/v1/auth/register
+## 🚀 Flux d'Inscription & Activation
+1. **Register** : `POST /api/v1/auth/register`. Création du compte + Token d'activation.
+2. **Email** : Envoi automatique du lien `https://localhost:4200/auth/activate?token=...`.
+3. **Activation** : Le clic sur le lien active le compte et génère un **Auto-Login** (Token RSA renvoyé immédiatement).
 
 * Crée l'utilisateur en base de données.
 
@@ -46,6 +43,11 @@ Le service utilise le chiffrement asymétrique RSA pour signer les jetons.
 * Génération : Utilisez OpenSSL pour générer vos paires de clés.
 
 * Recommandation critique : Ne jamais commiter la clé privée (private.pem) sur un dépôt public. Utilisez des variables d'environnement ou un gestionnaire de secrets (comme AWS Secrets Manager) en production.
+
+# 🛡️ Infrastructure PKI (.gitignore)
+Les fichiers suivants sont strictement exclus du dépôt :
+- `src/main/resources/certs/*.pem` (Clés privées/publiques).
+- `.env` (Identifiants Mailtrap et Google).
 
 ## 🚀 Configuration Postman
 Pour tester les endpoints sécurisés comme /mfa/setup :
