@@ -25,14 +25,17 @@ public class User {
 
     private Set<String> roles; // ROLE_USER, ROLE_ADMIN, etc.
 
+
+    // --- Statut du compte ---
+    private boolean active = false;
+    private boolean accountLocked = false;
     // --- Gestion MFA ---
     private boolean mfaEnabled = false;
     private String mfaSecret; // Pour Google Authenticator
 
-    // --- Statut du compte ---
-    private boolean active = true;
-    private boolean accountLocked = false;
 
+    private String verificationToken;
     private Instant createdAt;
     private Instant lastLogin;
+
 }

@@ -31,6 +31,9 @@ public class TokenServiceImpl implements TokenService {
                 .subject(user.getEmail())
                 .claim("roles", scope)
                 .claim("userId", user.getId())
+                .claim("mfaEnabled", user.isMfaEnabled())
+                .claim("active", user.isActive())
+                .claim("fullName", user.getFullName())
                 .build();
 
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

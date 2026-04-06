@@ -1,20 +1,25 @@
 package com.shield.auth_service.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
 
-@Builder
-@JsonInclude(JsonInclude.Include.NON_NULL) // Cache les champs vides (comme tempToken si pas de MFA)
-public record AuthResponse(
-        String message,
-        boolean mfaRequired,
-        String accessToken,
-        String refreshToken,
-        String tempToken,
-        String qrCodeUri,
-        Set<String> roles
-) {}
+@Data
+@Builder @NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class AuthResponse {
+    private String message;
+    private boolean mfaRequired;
+    private boolean mfaEnabled;
+    private String accessToken;
+    private String refreshToken;
+    private String tempToken;
+    private String qrCodeUri;
+    private Set<String> roles;
+}

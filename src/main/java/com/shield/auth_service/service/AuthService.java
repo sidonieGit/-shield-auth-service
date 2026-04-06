@@ -12,4 +12,15 @@ public interface AuthService {
     AuthResponse setupMfa(String email);
 
     AuthResponse verifyMfaLogin(String tempToken, int code);
+
+    AuthResponse loginWithGoogle(String idTokenString);
+
+    AuthResponse forgotPassword(String email);
+
+    AuthResponse updatePassword(String token, String newPassword);
+
+    AuthResponse disableMfa(String token);
+
+    AuthResponse activateAccount(String token);
+
 }

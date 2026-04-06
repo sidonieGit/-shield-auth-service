@@ -25,6 +25,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -40,14 +41,39 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
+                // On active le CORS en utilisant notre Bean corsConfigurationSource
+                //.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 // 1. On désactive le .cors() ici car la Gateway s'en occupe déjà
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/mfa/setup", "/api/v1/auth/mfa/verify").permitAll()
+                        // On ouvre les routes d'authentification
+                        .requestMatchers(
+                                "/api/v1/auth/register",
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/forgot-password",
+                                "/api/v1/auth/password-update",
+                                "/api/v1/auth/google",
+                                "/api/v1/auth/mfa/**",
+                                "/api/v1/auth/activate"
+                        ).permitAll()//                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        // On protège le reste (comme /api/v1/auth/me)
                         .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                // Activation de la validation du Token RSA pour les routes protégées
+//                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // On configure le serveur de ressources
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(Customizer.withDefaults())
+                        // IMPORTANT : On ignore les erreurs d'auth pour les routes permitAll
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            if (request.getServletPath().startsWith("/api/v1/auth/")) {
+                                // Si c'est une route d'auth, on laisse passer l'erreur pour que le filtre suivant gère
+                                return;
+                            }
+                            response.sendError(401, "Unauthorized");
+                        })
+                )
                 .build();
     }
 
@@ -71,11 +97,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Autorise votre domaine personnalisé ET localhost
-        configuration.setAllowedOrigins(Arrays.asList("https://app.caisse-sociale.com", "http://localhost:4200"));
+        // Autorise vos domaines de développement
+        configuration.setAllowedOrigins(Arrays.asList("https://app.caisse-sociale.com", "http://localhost:4200", "https://localhost:4200"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true); // Très important pour les cookies/sessions
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
